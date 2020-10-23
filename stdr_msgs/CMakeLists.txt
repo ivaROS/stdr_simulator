@@ -39,6 +39,8 @@ add_message_files(
     CO2SensorMeasurementMsg.msg
     CO2Source.msg
     CO2SourceVector.msg
+
+    BumperSensorMsg.msg
 )
 
 add_service_files(
