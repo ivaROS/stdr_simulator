@@ -42,9 +42,12 @@ namespace stdr_robot
   **/
   void Robot::onInit()
   {
+    float frequency = 10;
+    float freq_time = 1. / frequency;
+
     ros::NodeHandle n = getMTNodeHandle();
 
-    _odomPublisher = n.advertise<nav_msgs::Odometry>(getName() + "/odom", 10);
+    _odomPublisher = n.advertise<nav_msgs::Odometry>(getName() + "/odom", frequency);
 
     _registerClientPtr.reset(
       new RegisterRobotClient(n, "stdr_server/register_robot", true) );
@@ -61,8 +64,10 @@ namespace stdr_robot
       getName() + "/replace", &Robot::moveRobotCallback, this);
 
     //we should not start the timer, until we hame a motion controller
+    // _tfTimer = n.createTimer(
+      // ros::Duration(0.1), &Robot::publishTransforms, this, false, false);
     _tfTimer = n.createTimer(
-      ros::Duration(0.1), &Robot::publishTransforms, this, false, false);
+      ros::Duration(freq_time), &Robot::publishTransforms, this, false, false);
   }
 
   /**
@@ -141,7 +146,7 @@ namespace stdr_robot
         new Bumper( _map,
           result->description.bumperSensors[bumperIter], getName(), n ) ) );
     }
-
+    
     if( result->description.footprint.points.size() == 0 ) {
       float radius = result->description.footprint.radius;
       for(unsigned int i = 0 ; i < 360 ; i++)
@@ -158,7 +163,7 @@ namespace stdr_robot
         _footprint.push_back( std::pair<float,float>(p.x, p.y));
       }
     }
-
+    
     std::string motion_model = result->description.kinematicModel.type;
     stdr_msgs::KinematicMsg p = result->description.kinematicModel;
 
@@ -178,7 +183,7 @@ namespace stdr_robot
       _motionControllerPtr.reset(
         new IdealMotionController(_currentPose, _tfBroadcaster, n, getName(), p));
     }
-
+    
     _tfTimer.start();
   }
 

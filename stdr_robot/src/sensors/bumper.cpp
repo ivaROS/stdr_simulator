@@ -92,6 +92,8 @@ namespace stdr_robot {
       yMap = _sensorTransform.getOrigin().y() / _map.info.resolution +
           sin( bumperIter + tf::getYaw(_sensorTransform.getRotation())) * distance;
 
+      // ROS_INFO_STREAM("b xy: [ " << xMap << " , " << yMap << " ]");
+
       if (yMap * _map.info.width + xMap > _map.info.height*_map.info.width)
         return;
 
