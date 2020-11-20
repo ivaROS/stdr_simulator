@@ -49,6 +49,10 @@ namespace stdr_robot
 
     _odomPublisher = n.advertise<nav_msgs::Odometry>(getName() + "/odom", frequency);
 
+    _mapSubscriber = n.subscribe("map", 1, &Robot::mapCallback, this);
+
+    ros::Duration(0.1).sleep();
+
     _registerClientPtr.reset(
       new RegisterRobotClient(n, "stdr_server/register_robot", true) );
 
@@ -59,7 +63,6 @@ namespace stdr_robot
     _registerClientPtr->sendGoal(goal,
       boost::bind(&Robot::initializeRobot, this, _1, _2));
 
-    _mapSubscriber = n.subscribe("map", 1, &Robot::mapCallback, this);
     _moveRobotService = n.advertiseService(
       getName() + "/replace", &Robot::moveRobotCallback, this);
 
@@ -68,6 +71,8 @@ namespace stdr_robot
       // ros::Duration(0.1), &Robot::publishTransforms, this, false, false);
     _tfTimer = n.createTimer(
       ros::Duration(freq_time), &Robot::publishTransforms, this, false, false);
+    // _tfTimer = n.createWallTimer(
+      // ros::WallDuration(freq_time), &Robot::publishTransforms, this, false, false);
   }
 
   /**
@@ -80,7 +85,6 @@ namespace stdr_robot
     const actionlib::SimpleClientGoalState& state,
     const stdr_msgs::RegisterRobotResultConstPtr result)
   {
-
     if (state == state.ABORTED) {
       NODELET_ERROR("Something really bad happened...");
       return;
@@ -206,6 +210,9 @@ namespace stdr_robot
   bool Robot::moveRobotCallback(stdr_msgs::MoveRobot::Request& req,
                 stdr_msgs::MoveRobot::Response& res)
   {
+    if(_map.info.resolution == 0)
+      return false;
+
     if( collisionExistsNoPath(req.newPose) ||
         checkUnknownOccupancy(req.newPose) )
     {
@@ -423,7 +430,13 @@ namespace stdr_robot
   @return void
   **/
   void Robot::publishTransforms(const ros::TimerEvent&)
+  // void Robot::publishTransforms(const ros::WallTimerEvent&)
   {
+    ros::WallTime start_time = ros::WallTime::now();
+    
+    if(_map.info.resolution == 0)
+      return;
+
     geometry_msgs::Pose2D pose = _motionControllerPtr->getPose();
     if( ! collisionExists(pose, _previousPose) )
     {
@@ -433,6 +446,7 @@ namespace stdr_robot
     {
       _motionControllerPtr->setPose(_previousPose);
     }
+    
     //!< Robot tf
     tf::Vector3 translation(_previousPose.x, _previousPose.y, 0);
     tf::Quaternion rotation;
@@ -473,6 +487,8 @@ namespace stdr_robot
           getName(),
           _sensors[i]->getFrameId()));
     }
+
+    ROS_DEBUG_STREAM("Timing for publishing tf and odom: " << (ros::WallTime::now() - start_time).toSec() * 1000 << " ms");
   }
 
   /**

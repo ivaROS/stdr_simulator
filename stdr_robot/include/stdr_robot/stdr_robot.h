@@ -129,6 +129,7 @@ namespace stdr_robot {
     @return void
     **/
     void publishTransforms(const ros::TimerEvent&);
+    // void publishTransforms(const ros::WallTimerEvent&);
    
    
    private:
@@ -138,6 +139,7 @@ namespace stdr_robot {
     
     //!< ROS timer to publish tf transforms (10Hz)
     ros::Timer _tfTimer;
+    // ros::WallTimer _tfTimer;
     
     //!< ROS service server to move robot
     ros::ServiceServer _moveRobotService;
