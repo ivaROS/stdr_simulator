@@ -25,6 +25,7 @@
 #include <ros/ros.h>
 #include <nodelet/nodelet.h>
 #include <tf/transform_broadcaster.h>
+#include <tf2_ros/static_transform_broadcaster.h>
 #include <stdr_msgs/RobotMsg.h>
 #include <stdr_msgs/MoveRobot.h>
 #include <stdr_robot/sensors/sensor_base.h>
@@ -152,6 +153,8 @@ namespace stdr_robot {
     
     //!< ROS tf transform broadcaster
     tf::TransformBroadcaster _tfBroadcaster;
+
+    tf2_ros::StaticTransformBroadcaster _tfStaticBroadcaster;
 
     //!< Odometry Publisher
     ros::Publisher _odomPublisher;
