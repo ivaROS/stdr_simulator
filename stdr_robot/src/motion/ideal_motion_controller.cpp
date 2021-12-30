@@ -55,7 +55,7 @@ namespace stdr_robot {
     //!< updates _posePtr based on _currentTwist and time passed (event.last_real)
     
     ros::Duration dt = ros::Time::now() - event.last_real;
-    
+    std::cout << "ideal calculate motion" << std::endl;
     if (_currentTwist.angular.z == 0) {
       
       _pose.x += _currentTwist.linear.x * dt.toSec() * cosf(_pose.theta);

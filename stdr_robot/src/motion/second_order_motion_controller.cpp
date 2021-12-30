@@ -33,7 +33,7 @@ robot (forward), and along the y axis of the robot (lateral), and one
 rotation.
 ******************************************************************************/
 
-#include <stdr_robot/motion/omni_motion_controller.h>
+#include <stdr_robot/motion/second_order_motion_controller.h>
 
 namespace stdr_robot {
     
@@ -45,7 +45,7 @@ namespace stdr_robot {
   @param name [const std::string&] The robot frame id
   @return void
   **/  
-  OmniMotionController::OmniMotionController(
+  SecondOrderMotionController::SecondOrderMotionController(
     const geometry_msgs::Pose2D& pose, 
     tf::TransformBroadcaster& tf, 
     ros::NodeHandle& n, 
@@ -55,8 +55,11 @@ namespace stdr_robot {
   {
     _calcTimer = n.createTimer(
       _freq, 
-      &OmniMotionController::calculateMotion, 
+      &SecondOrderMotionController::calculateMotion, 
       this);
+    current_vel = geometry_msgs::Twist();
+    acc_publisher = n.advertise<sensor_msgs::Imu>(name + "/imu", 1000);
+    current_acc = sensor_msgs::Imu();
   }
 
   
@@ -65,12 +68,12 @@ namespace stdr_robot {
   @param event [const ros::TimerEvent&] A ROS timer event
   @return void
   **/
-  void OmniMotionController::calculateMotion(const ros::TimerEvent& event) 
+  void SecondOrderMotionController::calculateMotion(const ros::TimerEvent& event) 
   {
     //!< updates _posePtr based on _currentTwist and time passed (event.last_real)
     
     ros::Duration dt = ros::Time::now() - event.last_real;
-    std::cout << "omni calculate motion" << std::endl;
+    ROS_INFO("~~~~~~~in second order dynamics~~~~~~~~~");
     // Simple omni model
     // TODO: Add kinematic model uncertainties
     if (_currentTwist.angular.z != 0 || _currentTwist.linear.x != 0 ||
@@ -78,15 +81,29 @@ namespace stdr_robot {
     {
       // Dx and Dy takes under consideration both linear rotations, 
       // independently of each other
+      double K_acc = 3.0;
+      double a_x = -K_acc * (current_vel.linear.x - _currentTwist.linear.x);
+      double a_y = -K_acc * (current_vel.linear.y - _currentTwist.linear.y);
+      double a_theta = -K_acc * (current_vel.angular.z - _currentTwist.angular.z);
+
+      current_acc.linear_acceleration.x = a_x;
+      current_acc.linear_acceleration.y = a_y;
+      current_acc.angular_velocity.z = a_theta;
+
+      acc_publisher.publish(current_acc);
       _pose.x += 
-        _currentTwist.linear.x * dt.toSec() * cosf(_pose.theta) + 
-        _currentTwist.linear.y * dt.toSec() * cosf(_pose.theta + M_PI/2.0); 
+        current_vel.linear.x * dt.toSec() * cosf(_pose.theta) + 
+        current_vel.linear.y * dt.toSec() * cosf(_pose.theta + M_PI/2.0); 
 
       _pose.y += 
-        _currentTwist.linear.y * dt.toSec() * sinf(_pose.theta + M_PI/2.0) +
-        _currentTwist.linear.x * dt.toSec() * sinf(_pose.theta);
+        current_vel.linear.y * dt.toSec() * sinf(_pose.theta + M_PI/2.0) +
+        current_vel.linear.x * dt.toSec() * sinf(_pose.theta);
 
-      _pose.theta += _currentTwist.angular.z * dt.toSec();
+      _pose.theta += current_vel.angular.z * dt.toSec();
+
+      current_vel.linear.x += a_x * dt.toSec();
+      current_vel.linear.y += a_y * dt.toSec();
+      current_vel.angular.z += a_theta * dt.toSec();
     }
   }
   
@@ -94,7 +111,7 @@ namespace stdr_robot {
   @brief Default destructor 
   @return void
   **/
-  OmniMotionController::~OmniMotionController(void)
+  SecondOrderMotionController::~SecondOrderMotionController(void)
   {
     
   }

@@ -42,7 +42,7 @@ namespace stdr_robot
   **/
   void Robot::onInit()
   {
-    float frequency = 10;
+    float frequency = 100;
     float freq_time = 1. / frequency;
 
     ros::NodeHandle n = getMTNodeHandle();
@@ -171,6 +171,7 @@ namespace stdr_robot
     std::string motion_model = result->description.kinematicModel.type;
     stdr_msgs::KinematicMsg p = result->description.kinematicModel;
 
+    // ROS_INFO("motion_model: %s", motion_model.c_str());
     if(motion_model == "ideal")
     {
       _motionControllerPtr.reset(
@@ -181,11 +182,36 @@ namespace stdr_robot
       _motionControllerPtr.reset(
         new OmniMotionController(_currentPose, _tfBroadcaster, n, getName(), p));
     }
+    else if(motion_model == "second_order")
+    {
+      _motionControllerPtr.reset(
+        new SecondOrderMotionController(_currentPose, _tfBroadcaster, n, getName(), p));
+    }
     else
     {
       // If no motion model is specified or an invalid type declared use ideal
       _motionControllerPtr.reset(
         new IdealMotionController(_currentPose, _tfBroadcaster, n, getName(), p));
+    }
+
+    for (int i = 0; i < _sensors.size(); i++) {
+      geometry_msgs::Pose2D sensorPose = _sensors[i]->getSensorPose();
+
+      geometry_msgs::TransformStamped transformStamped;
+
+      transformStamped.header.stamp = ros::Time::now();
+      transformStamped.header.frame_id = getName();
+      transformStamped.child_frame_id = _sensors[i]->getFrameId();
+      transformStamped.transform.translation.x = sensorPose.x;
+      transformStamped.transform.translation.y = sensorPose.y;
+      transformStamped.transform.translation.z = 0.0;
+      tf2::Quaternion quat;
+      quat.setRPY(0.0, 0.0, sensorPose.theta);
+      transformStamped.transform.rotation.x = quat.x();
+      transformStamped.transform.rotation.y = quat.y();
+      transformStamped.transform.rotation.z = quat.z();
+      transformStamped.transform.rotation.w = quat.w();
+      _tfStaticBroadcaster.sendTransform(transformStamped);
     }
     
     _tfTimer.start();
@@ -446,6 +472,8 @@ namespace stdr_robot
     {
       _motionControllerPtr->setPose(_previousPose);
     }
+
+    ros::Time timeNow = ros::Time::now();
     
     //!< Robot tf
     tf::Vector3 translation(_previousPose.x, _previousPose.y, 0);
@@ -455,11 +483,11 @@ namespace stdr_robot
     tf::Transform mapToRobot(rotation, translation);
 
     _tfBroadcaster.sendTransform(tf::StampedTransform(
-      mapToRobot, ros::Time::now(), "map_static", getName()));
+      mapToRobot, timeNow, "map_static", getName()));
 
     //!< Odometry
     nav_msgs::Odometry odom;
-    odom.header.stamp = ros::Time::now();
+    odom.header.stamp = timeNow;
     odom.header.frame_id = "map_static";
     odom.child_frame_id = getName();
     odom.pose.pose.position.x = _previousPose.x;
@@ -470,23 +498,23 @@ namespace stdr_robot
 
     _odomPublisher.publish(odom);
 
-    //!< Sensors tf
-    for (int i = 0; i < _sensors.size(); i++) {
-      geometry_msgs::Pose2D sensorPose = _sensors[i]->getSensorPose();
+    // //!< Sensors tf
+    // for (int i = 0; i < _sensors.size(); i++) {
+    //   geometry_msgs::Pose2D sensorPose = _sensors[i]->getSensorPose();
 
-      tf::Vector3 trans(sensorPose.x, sensorPose.y, 0);
-      tf::Quaternion rot;
-      rot.setRPY(0, 0, sensorPose.theta);
+    //   tf::Vector3 trans(sensorPose.x, sensorPose.y, 0);
+    //   tf::Quaternion rot;
+    //   rot.setRPY(0, 0, sensorPose.theta);
 
-      tf::Transform robotToSensor(rot, trans);
+    //   tf::Transform robotToSensor(rot, trans);
 
-      _tfBroadcaster.sendTransform(
-        tf::StampedTransform(
-          robotToSensor,
-          ros::Time::now(),
-          getName(),
-          _sensors[i]->getFrameId()));
-    }
+    //   _tfBroadcaster.sendTransform(
+    //     tf::StampedTransform(
+    //       robotToSensor,
+    //       ros::Time::now(),
+    //       getName(),
+    //       _sensors[i]->getFrameId()));
+    // }
 
     ROS_DEBUG_STREAM("Timing for publishing tf and odom: " << (ros::WallTime::now() - start_time).toSec() * 1000 << " ms");
   }

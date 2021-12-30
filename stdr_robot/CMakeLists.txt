@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   nodelet
   actionlib
   tf
+  tf2_ros
   stdr_msgs
   stdr_parser
   geometry_msgs
@@ -30,6 +31,7 @@ catkin_package(
     nodelet
     actionlib
     tf
+    tf2_ros
     stdr_msgs
     stdr_parser
     geometry_msgs
@@ -79,6 +81,10 @@ add_library(stdr_omni_motion_controller src/motion/omni_motion_controller.cpp)
 add_dependencies(stdr_omni_motion_controller ${stdr_msgs_EXPORTED_TARGETS}) # wait for stdr_msgs to be build
 target_link_libraries(stdr_omni_motion_controller ${catkin_LIBRARIES})
 
+add_library(stdr_second_order_motion_controller src/motion/second_order_motion_controller.cpp)
+add_dependencies(stdr_second_order_motion_controller ${stdr_msgs_EXPORTED_TARGETS}) # wait for stdr_msgs to be build
+target_link_libraries(stdr_second_order_motion_controller ${catkin_LIBRARIES})
+
 ######################### Robot ########################################
 add_library(stdr_robot_nodelet src/stdr_robot.cpp)
 add_dependencies(stdr_robot_nodelet ${stdr_msgs_EXPORTED_TARGETS}) # wait for stdr_msgs to be build
@@ -92,6 +98,7 @@ target_link_libraries(stdr_robot_nodelet ${catkin_LIBRARIES}
     stdr_bumper
     stdr_ideal_motion_controller
     stdr_omni_motion_controller
+    stdr_second_order_motion_controller
 )
 
 ######################### HandleRobot ##################################
@@ -127,6 +134,7 @@ install(TARGETS
     stdr_bumper
     stdr_ideal_motion_controller
     stdr_omni_motion_controller
+    stdr_second_order_motion_controller
     stdr_handle_robot
     stdr_robot_nodelet
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

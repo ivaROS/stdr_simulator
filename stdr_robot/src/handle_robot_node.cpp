@@ -53,6 +53,7 @@ int main(int argc, char** argv) {
       return -1;
     }
     
+    // ROS_INFO("kinematic model: %s", msg.kinematicModel.type.c_str());
     if (argc == 6) {
       msg.initialPose.x = atof(argv[3]);
       msg.initialPose.y = atof(argv[4]);
@@ -62,6 +63,7 @@ int main(int argc, char** argv) {
     stdr_msgs::RobotIndexedMsg namedRobot;
     
     try {
+      // ROS_INFO("calling spawnNewRobot");
       namedRobot = handler.spawnNewRobot(msg);
       return 0;
     }
