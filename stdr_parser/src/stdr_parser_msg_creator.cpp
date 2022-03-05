@@ -940,6 +940,16 @@ namespace stdr_parser
       msg.radius = atof(specs->elements[indexes[0]]->elements[0]->
         value.c_str());
     }
+    // search for points
+    indexes = specs->getTag("points");
+    if( indexes.size() != 0 ) {
+      Node* tmp_specs = specs->elements[indexes[0]];
+      std::vector<int> points = tmp_specs->getTag("point");
+      for( unsigned int i = 0; i < points.size(); i++ ) {
+        msg.points.push_back(createMessage<geometry_msgs::Point>(
+              tmp_specs->elements[points[i]], i));
+      }
+    }
 
     //!< Search for contactAngle
     indexes = specs->getTag("contact_angle");

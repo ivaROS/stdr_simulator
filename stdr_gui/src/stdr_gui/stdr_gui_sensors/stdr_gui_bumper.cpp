@@ -110,13 +110,50 @@ namespace stdr_gui{
       QPen pen(QColor(0,0,255,255));
       painter.setPen(pen);
     }
-    painter.drawArc(
-      (pose_x - msg_.radius) / ocgd,
-      (pose_y - msg_.radius) / ocgd,
-      msg_.radius / ocgd * 2,
-      msg_.radius / ocgd * 2,
-      - (pose_theta - msg_.contactAngle / 2) * 180 / STDR_PI * 16,
-      - msg_.contactAngle * 180 / STDR_PI * 16);
+
+    if(msg_.points.size() == 0)
+    {
+      painter.drawArc(
+        (pose_x - msg_.radius) / ocgd,
+        (pose_y - msg_.radius) / ocgd,
+        msg_.radius / ocgd * 2,
+        msg_.radius / ocgd * 2,
+        - (pose_theta - msg_.contactAngle / 2) * 180 / STDR_PI * 16,
+        - msg_.contactAngle * 180 / STDR_PI * 16);
+    }
+    else
+    {
+      float max = -1;
+      
+      static QPointF *points = new QPointF[msg_.points.size() + 1];
+      
+      for(unsigned int i = 0 ; i < msg_.points.size() + 1; i++)
+      {
+        
+        float x = msg_.points[i % msg_.points.size()].x;
+        float y = msg_.points[i % msg_.points.size()].y;
+        
+        points[i] = QPointF(
+          pose_x / ocgd + 
+            x / ocgd * cos(- pose_theta) 
+            + y / ocgd * sin(- pose_theta),
+              
+          pose_y / ocgd + 
+            x / ocgd * sin(pose_theta) 
+            + y / ocgd * cos(- pose_theta));
+      }
+      
+      painter.drawPolyline(points, msg_.points.size() + 1);
+      
+      // painter.drawLine(
+      //   QPointF(  pose_x,
+      //             pose_y),
+      //   QPointF(  pose_x + 
+      //               max * 1.05 * cos(pose_theta),
+      //             pose_y + 
+      //               max * 1.05 * sin(pose_theta)));
+    }
+
     lock_ = false;
   }
 
