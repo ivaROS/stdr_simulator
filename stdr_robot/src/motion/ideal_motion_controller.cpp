@@ -56,24 +56,25 @@ namespace stdr_robot {
     
     ros::Duration dt = ros::Time::now() - event.last_real;
     std::cout << "ideal calculate motion" << std::endl;
-    if (_currentTwist.angular.z == 0) {
+    _currentVel = _currentTwist;
+    if (_currentVel.angular.z == 0) {
       
-      _pose.x += _currentTwist.linear.x * dt.toSec() * cosf(_pose.theta);
-      _pose.y += _currentTwist.linear.x * dt.toSec() * sinf(_pose.theta);
+      _pose.x += _currentVel.linear.x * dt.toSec() * cosf(_pose.theta);
+      _pose.y += _currentVel.linear.x * dt.toSec() * sinf(_pose.theta);
     }
     else {
       
-      _pose.x += - _currentTwist.linear.x / _currentTwist.angular.z * 
+      _pose.x += - _currentVel.linear.x / _currentVel.angular.z * 
         sinf(_pose.theta) + 
-        _currentTwist.linear.x / _currentTwist.angular.z * 
-        sinf(_pose.theta + dt.toSec() * _currentTwist.angular.z);
+        _currentVel.linear.x / _currentVel.angular.z * 
+        sinf(_pose.theta + dt.toSec() * _currentVel.angular.z);
       
-      _pose.y -= - _currentTwist.linear.x / _currentTwist.angular.z * 
+      _pose.y -= - _currentVel.linear.x / _currentVel.angular.z * 
         cosf(_pose.theta) + 
-        _currentTwist.linear.x / _currentTwist.angular.z * 
-        cosf(_pose.theta + dt.toSec() * _currentTwist.angular.z);
+        _currentVel.linear.x / _currentVel.angular.z * 
+        cosf(_pose.theta + dt.toSec() * _currentVel.angular.z);
     }
-    _pose.theta += _currentTwist.angular.z * dt.toSec();
+    _pose.theta += _currentVel.angular.z * dt.toSec();
   }
   
   /**

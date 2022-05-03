@@ -70,23 +70,25 @@ namespace stdr_robot {
     //!< updates _posePtr based on _currentTwist and time passed (event.last_real)
     
     ros::Duration dt = ros::Time::now() - event.last_real;
-    std::cout << "omni calculate motion" << std::endl;
+    // std::cout << "omni calculate motion" << std::endl;
     // Simple omni model
     // TODO: Add kinematic model uncertainties
-    if (_currentTwist.angular.z != 0 || _currentTwist.linear.x != 0 ||
-     _currentTwist.linear.y != 0) 
+
+    _currentVel = _currentTwist;
+    if (_currentVel.angular.z != 0 || _currentVel.linear.x != 0 ||
+     _currentVel.linear.y != 0) 
     {
       // Dx and Dy takes under consideration both linear rotations, 
       // independently of each other
       _pose.x += 
-        _currentTwist.linear.x * dt.toSec() * cosf(_pose.theta) + 
-        _currentTwist.linear.y * dt.toSec() * cosf(_pose.theta + M_PI/2.0); 
+        _currentVel.linear.x * dt.toSec() * cosf(_pose.theta) + 
+        _currentVel.linear.y * dt.toSec() * cosf(_pose.theta + M_PI/2.0); 
 
       _pose.y += 
-        _currentTwist.linear.y * dt.toSec() * sinf(_pose.theta + M_PI/2.0) +
-        _currentTwist.linear.x * dt.toSec() * sinf(_pose.theta);
+        _currentVel.linear.y * dt.toSec() * sinf(_pose.theta + M_PI/2.0) +
+        _currentVel.linear.x * dt.toSec() * sinf(_pose.theta);
 
-      _pose.theta += _currentTwist.angular.z * dt.toSec();
+      _pose.theta += _currentVel.angular.z * dt.toSec();
     }
   }
   

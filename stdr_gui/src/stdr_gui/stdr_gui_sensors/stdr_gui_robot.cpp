@@ -40,6 +40,7 @@ namespace stdr_gui
     show_label_ = true;
     show_circles_ = false;
     visualization_status_ = 0;
+    robot_label_visualization_status_ = 2;
     for(unsigned int i = 0 ; i < msg.robot.laserSensors.size() ; i++)
     {
       CGuiLaser *l = new CGuiLaser(msg.robot.laserSensors[i], frame_id_);
@@ -314,7 +315,7 @@ namespace stdr_gui
     
     int text_size = frame_id_.size();
     
-    painter.setPen(QColor(0,0,0,100 * (2 - visualization_status_)));
+    painter.setPen(QColor(0,0,0,100 * (2 - robot_label_visualization_status_)));
     
     painter.drawRect(
       current_pose_.x / ocgd + 10,
@@ -322,14 +323,14 @@ namespace stdr_gui
       3 + text_size * 9,
       20);
     
-    painter.setPen(QColor(255,255,255,100 * (2 - visualization_status_)));
+    painter.setPen(QColor(255,255,255,100 * (2 - robot_label_visualization_status_)));
     
     painter.fillRect(
       current_pose_.x / ocgd + 10,
       m->height() - (current_pose_.y / ocgd) - 30,
       3 + text_size * 9,
       20,
-      QBrush(QColor(0,0,0,100 * (2 - visualization_status_))));
+      QBrush(QColor(0,0,0,100 * (2 - robot_label_visualization_status_))));
     
     painter.setFont(QFont("Courier New"));
     painter.drawText(

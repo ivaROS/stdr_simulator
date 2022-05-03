@@ -116,6 +116,12 @@ namespace stdr_robot {
         _currentTwist.angular.x = 0;
         _currentTwist.angular.y = 0;
         _currentTwist.angular.z = 0;
+        _currentVel.linear.x = 0;
+        _currentVel.linear.y = 0;
+        _currentVel.linear.z = 0;
+        _currentVel.angular.x = 0;
+        _currentVel.angular.y = 0;
+        _currentVel.angular.z = 0;      
       }
       
       /**
@@ -151,7 +157,7 @@ namespace stdr_robot {
       @return geometry_msgs::Twist
       */
       inline geometry_msgs::Twist getVelocity() {
-        return _currentTwist;
+        return _currentVel;
       }
 
       /**
@@ -226,6 +232,7 @@ namespace stdr_robot {
       geometry_msgs::Pose2D _pose;
       //!< Current motion command
       geometry_msgs::Twist _currentTwist;
+      geometry_msgs::Twist _currentVel;
       //!< The kinematic model parameters
       stdr_msgs::KinematicMsg _motion_parameters;
   };

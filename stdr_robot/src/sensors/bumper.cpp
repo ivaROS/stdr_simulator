@@ -83,7 +83,7 @@ namespace stdr_robot {
     float angleMax = _description.contactAngle / 2.0 ;
     rangeMsg.min_range = rangeMsg.max_range;
     rangeMsg.range = std::numeric_limits<float>::infinity(); // not in contact
-    // check if the bumper arc hits the occupied grid
+    // check if the bumper arc hits the occupied grid (from the map)
     for ( float bumperIter = angleMin; bumperIter < angleMax; bumperIter += angleStep )
     {
       distance =  _description.radius / _map.info.resolution;
@@ -98,6 +98,7 @@ namespace stdr_robot {
         return;
 
       //!< Found obstacle
+      // ROS_INFO("contact prob: %s", std::to_string(_map.data[ yMap * _map.info.width + xMap ]).c_str());
       if ( _map.data[ yMap * _map.info.width + xMap ] > 70 ) {
         rangeMsg.range = -std::numeric_limits<float>::infinity(); // contact
         break;
