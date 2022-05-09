@@ -56,16 +56,15 @@ namespace stdr_robot {
       _freq, 
       &SecondOrderMotionController::calculateMotion, 
       this);
-    _currentVel = geometry_msgs::Twist();
-    acc_publisher = n.advertise<sensor_msgs::Imu>(name + "/imu", 1000);
-    vel_publisher = n.advertise<geometry_msgs::Twist>(name + "/current_vel", 1000);
-    current_acc = sensor_msgs::Imu();
+    // _currentVel = geometry_msgs::Twist();
+    // acc_publisher = n.advertise<geometry_msgs::Twist>(name + "/acc", 1000);
+    //vel_publisher = n.advertise<geometry_msgs::Twist>(name + "/current_vel", 1000);
 
     prev_error_x = 0.0;
     prev_error_y = 0.0;
     prev_error_theta = 0.0;
 
-    K_p = 3;
+    K_p = 1.5;
     K_d = 0.5;
   }
 
@@ -102,11 +101,13 @@ namespace stdr_robot {
       double a_y = K_p * error_y; // + K_d*d_error_y_dt;
       double a_theta = K_p * error_theta; // + K_d*d_error_theta_dt;
 
-      current_acc.linear_acceleration.x = a_x;
-      current_acc.linear_acceleration.y = a_y;
-      current_acc.angular_velocity.z = a_theta;
+      double linear_acc_lim = 1.0;
+      double angular_acc_lim = 1.0;
 
-      acc_publisher.publish(current_acc);
+      _currentAcc.linear.x = a_x; //(a_x > 0.0) ? std::min(a_x, linear_acc_lim) : std::max(a_x, -linear_acc_lim);
+      _currentAcc.linear.y = a_y; //(a_y > 0.0) ? std::min(a_y, linear_acc_lim) : std::max(a_y, -linear_acc_lim);
+      _currentAcc.angular.z = a_theta; //(a_theta > 0.0) ? std::min(a_theta, angular_acc_lim) : std::max(a_theta, -angular_acc_lim);      
+      
       _pose.x += 
         _currentVel.linear.x * dt.toSec() * cosf(_pose.theta) + 
         _currentVel.linear.y * dt.toSec() * cosf(_pose.theta + M_PI/2.0); 
@@ -118,10 +119,10 @@ namespace stdr_robot {
 
       _pose.theta += _currentVel.angular.z * dt.toSec();
 
-      _currentVel.linear.x += a_x * dt.toSec();
-      _currentVel.linear.y += a_y * dt.toSec();
-      _currentVel.angular.z += a_theta * dt.toSec();
-      vel_publisher.publish(_currentVel);
+      _currentVel.linear.x += _currentAcc.linear.x * dt.toSec();
+      _currentVel.linear.y += _currentAcc.linear.y * dt.toSec();
+      _currentVel.angular.z += _currentAcc.angular.z * dt.toSec();
+      // vel_publisher.publish(_currentVel);
       // pretty sure pose is in world coords, vel/acc are in robot coords
     }
   }

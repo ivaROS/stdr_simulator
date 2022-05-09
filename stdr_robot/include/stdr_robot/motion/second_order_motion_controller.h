@@ -86,9 +86,8 @@ namespace stdr_robot
       ~SecondOrderMotionController(void);
 
       // geometry_msgs::Twist current_vel;
-      ros::Publisher acc_publisher;
-      ros::Publisher vel_publisher;
-      sensor_msgs::Imu current_acc;
+      //ros::Publisher acc_publisher;
+      //ros::Publisher vel_publisher;
 
       double prev_error_x;
       double prev_error_y;

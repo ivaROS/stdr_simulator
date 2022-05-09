@@ -49,6 +49,8 @@ namespace stdr_robot
 
     _odomPublisher = n.advertise<nav_msgs::Odometry>(getName() + "/odom", frequency);
 
+    _accPublisher = n.advertise<geometry_msgs::Twist>(getName() + "/acc", frequency);
+
     _mapSubscriber = n.subscribe("map", 1, &Robot::mapCallback, this);
 
     ros::Duration(0.1).sleep();
@@ -496,9 +498,16 @@ namespace stdr_robot
     odom.pose.pose.position.y = _previousPose.y;
     odom.pose.pose.orientation = tf::createQuaternionMsgFromYaw(
         _previousPose.theta);
-    odom.twist.twist = _motionControllerPtr->getVelocity();
+    odom.twist.twist = _motionControllerPtr->getVelocity(); // still in rbt frame
 
     _odomPublisher.publish(odom);
+
+    // Acceleration
+    geometry_msgs::Twist rbt_acc;
+    rbt_acc = _motionControllerPtr->getAcceleration();
+
+    _accPublisher.publish(rbt_acc);
+
 
     // //!< Sensors tf
     // for (int i = 0; i < _sensors.size(); i++) {

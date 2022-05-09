@@ -42,6 +42,7 @@
 #include <stdr_robot/motion/second_order_motion_controller.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Odometry.h>
+#include <sensor_msgs/Imu.h>
 #include <actionlib/client/simple_action_client.h>
 #include <stdr_msgs/RegisterRobotAction.h>
 
@@ -159,6 +160,9 @@ namespace stdr_robot {
 
     //!< Odometry Publisher
     ros::Publisher _odomPublisher;
+
+    //!< Acceleration Publisher
+    ros::Publisher _accPublisher;
     
     //!< Holds robots current pose
     geometry_msgs::Pose2D _currentPose;
