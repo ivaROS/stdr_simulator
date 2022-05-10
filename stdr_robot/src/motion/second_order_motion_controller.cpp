@@ -64,8 +64,13 @@ namespace stdr_robot {
     prev_error_y = 0.0;
     prev_error_theta = 0.0;
 
-    K_p = 1.5;
-    K_d = 0.5;
+    K_p_x = 3.0;
+    K_p_y = 3.0;
+    K_p_z = 1.0;
+
+    K_d_x = 0.5;
+    K_d_y = 0.5;
+    K_d_z = 0.15;
   }
 
   
@@ -93,16 +98,16 @@ namespace stdr_robot {
       double error_y = _currentTwist.linear.y - _currentVel.linear.y;
       double error_theta = _currentTwist.angular.z - _currentVel.angular.z;
 
-      //double d_error_x_dt = (error_x - prev_error_x) / dt.toSec();
-      //double d_error_y_dt = (error_y - prev_error_y) / dt.toSec();
-      //double d_error_theta_dt = (error_theta - prev_error_theta) / dt.toSec();
+      double d_error_x_dt = (error_x - prev_error_x) / dt.toSec();
+      double d_error_y_dt = (error_y - prev_error_y) / dt.toSec();
+      double d_error_theta_dt = (error_theta - prev_error_theta) / dt.toSec();
 
-      double a_x = K_p * error_x; // + K_d*d_error_x_dt;
-      double a_y = K_p * error_y; // + K_d*d_error_y_dt;
-      double a_theta = K_p * error_theta; // + K_d*d_error_theta_dt;
+      double a_x = K_p_x * error_x + K_d_x * d_error_x_dt;
+      double a_y = K_p_y * error_y + K_d_y * d_error_y_dt;
+      double a_theta = K_p_z * error_theta + K_d_z * d_error_theta_dt;
 
-      double linear_acc_lim = 1.0;
-      double angular_acc_lim = 1.0;
+      //double linear_acc_lim = 1.0;
+      //double angular_acc_lim = 1.0;
 
       _currentAcc.linear.x = a_x; //(a_x > 0.0) ? std::min(a_x, linear_acc_lim) : std::max(a_x, -linear_acc_lim);
       _currentAcc.linear.y = a_y; //(a_y > 0.0) ? std::min(a_y, linear_acc_lim) : std::max(a_y, -linear_acc_lim);
@@ -115,7 +120,6 @@ namespace stdr_robot {
       _pose.y += 
         _currentVel.linear.y * dt.toSec() * sinf(_pose.theta + M_PI/2.0) +
         _currentVel.linear.x * dt.toSec() * sinf(_pose.theta);
-
 
       _pose.theta += _currentVel.angular.z * dt.toSec();
 

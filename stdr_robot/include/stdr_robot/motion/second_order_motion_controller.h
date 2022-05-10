@@ -93,8 +93,12 @@ namespace stdr_robot
       double prev_error_y;
       double prev_error_theta;
 
-      double K_p;
-      double K_d;
+      double K_p_x;
+      double K_p_y;
+      double K_p_z;
+      double K_d_x;
+      double K_d_y;
+      double K_d_z;
   };
 }
 
