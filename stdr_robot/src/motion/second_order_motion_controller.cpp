@@ -89,11 +89,17 @@ namespace stdr_robot {
     // TODO: Add kinematic model uncertainties
     // _currentTwist is the desired velocity
     // current_vel is the current velocity
-    if (_currentTwist.angular.z != 0 || _currentTwist.linear.x != 0 || _currentTwist.linear.y != 0) 
+    // std::cout << "in dynamics" << std::endl;
+    //
+    if ( _currentVel.angular.z != 0 || _currentVel.linear.x != 0 || _currentVel.linear.y != 0 || 
+      _currentTwist.angular.z != 0 || _currentTwist.linear.x != 0 || _currentTwist.linear.y != 0) 
     {
       // Dx and Dy takes under consideration both linear rotations, 
       // independently of each other
       // Kp: 1, Kd: .05 (div by 20)
+      std::cout << "current twist command: " << _currentTwist.linear.x << ", " << _currentTwist.linear.y << ", " << _currentTwist.angular.z << std::endl;
+      std::cout << "current robot velocity: " << _currentVel.linear.x << ", " << _currentVel.linear.y << ", " << _currentVel.angular.z << std::endl;
+      
       double error_x = _currentTwist.linear.x - _currentVel.linear.x;
       double error_y = _currentTwist.linear.y - _currentVel.linear.y;
       double error_theta = _currentTwist.angular.z - _currentVel.angular.z;
@@ -106,13 +112,14 @@ namespace stdr_robot {
       double a_y = K_p_y * error_y + K_d_y * d_error_y_dt;
       double a_theta = K_p_z * error_theta + K_d_z * d_error_theta_dt;
 
-      //double linear_acc_lim = 1.0;
-      //double angular_acc_lim = 1.0;
+      double linear_acc_lim = 3.0;
+      double angular_acc_lim = 3.0;
 
-      _currentAcc.linear.x = a_x; //(a_x > 0.0) ? std::min(a_x, linear_acc_lim) : std::max(a_x, -linear_acc_lim);
-      _currentAcc.linear.y = a_y; //(a_y > 0.0) ? std::min(a_y, linear_acc_lim) : std::max(a_y, -linear_acc_lim);
-      _currentAcc.angular.z = a_theta; //(a_theta > 0.0) ? std::min(a_theta, angular_acc_lim) : std::max(a_theta, -angular_acc_lim);      
-      
+      _currentAcc.linear.x = (a_x > 0.0) ? std::min(a_x, linear_acc_lim) : std::max(a_x, -linear_acc_lim);
+      _currentAcc.linear.y = (a_y > 0.0) ? std::min(a_y, linear_acc_lim) : std::max(a_y, -linear_acc_lim);
+      _currentAcc.angular.z = (a_theta > 0.0) ? std::min(a_theta, angular_acc_lim) : std::max(a_theta, -angular_acc_lim);      
+      std::cout << "current robot acceleration: " << _currentAcc.linear.x << ", " << _currentAcc.linear.y << ", " << _currentAcc.angular.z << std::endl;
+
       _pose.x += 
         _currentVel.linear.x * dt.toSec() * cosf(_pose.theta) + 
         _currentVel.linear.y * dt.toSec() * cosf(_pose.theta + M_PI/2.0); 
