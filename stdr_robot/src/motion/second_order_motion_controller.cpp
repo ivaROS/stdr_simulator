@@ -66,11 +66,11 @@ namespace stdr_robot {
 
     K_p_x = 3.0;
     K_p_y = 3.0;
-    K_p_z = 1.0;
+    K_p_z = 3.0;
 
-    K_d_x = 0.5;
-    K_d_y = 0.5;
-    K_d_z = 0.15;
+    K_d_x = 0.00;
+    K_d_y = 0.00;
+    K_d_z = 0.00;
   }
 
   
@@ -111,6 +111,7 @@ namespace stdr_robot {
       double a_x = K_p_x * error_x + K_d_x * d_error_x_dt;
       double a_y = K_p_y * error_y + K_d_y * d_error_y_dt;
       double a_theta = K_p_z * error_theta + K_d_z * d_error_theta_dt;
+      std::cout << "raw robot acceleration: " << a_x << ", " << a_y << ", " << a_theta << std::endl;
 
       double linear_acc_lim = 3.0;
       double angular_acc_lim = 3.0;
@@ -118,7 +119,7 @@ namespace stdr_robot {
       _currentAcc.linear.x = (a_x > 0.0) ? std::min(a_x, linear_acc_lim) : std::max(a_x, -linear_acc_lim);
       _currentAcc.linear.y = (a_y > 0.0) ? std::min(a_y, linear_acc_lim) : std::max(a_y, -linear_acc_lim);
       _currentAcc.angular.z = (a_theta > 0.0) ? std::min(a_theta, angular_acc_lim) : std::max(a_theta, -angular_acc_lim);      
-      std::cout << "current robot acceleration: " << _currentAcc.linear.x << ", " << _currentAcc.linear.y << ", " << _currentAcc.angular.z << std::endl;
+      std::cout << "clipped robot acceleration: " << _currentAcc.linear.x << ", " << _currentAcc.linear.y << ", " << _currentAcc.angular.z << std::endl;
 
       _pose.x += 
         _currentVel.linear.x * dt.toSec() * cosf(_pose.theta) + 
@@ -135,6 +136,10 @@ namespace stdr_robot {
       _currentVel.angular.z += _currentAcc.angular.z * dt.toSec();
       // vel_publisher.publish(_currentVel);
       // pretty sure pose is in world coords, vel/acc are in robot coords
+
+      prev_error_x = error_x;
+      prev_error_y = error_y;
+      prev_error_theta = error_theta;
     }
   }
   

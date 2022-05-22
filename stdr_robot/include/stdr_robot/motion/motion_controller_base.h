@@ -216,7 +216,7 @@ namespace stdr_robot {
         const stdr_msgs::KinematicMsg params
         )
           : _tfBroadcaster(tf), 
-            _freq(1.0 / 30.0), 
+            _freq(1.0 / 120.0), 
             _namespace(name),
             _pose(pose),
             _motion_parameters(params)
