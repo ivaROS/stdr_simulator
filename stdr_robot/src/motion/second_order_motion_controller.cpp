@@ -68,9 +68,9 @@ namespace stdr_robot {
     K_p_y = 3.0;
     K_p_z = 3.0;
 
-    K_d_x = 0.00;
-    K_d_y = 0.00;
-    K_d_z = 0.00;
+    K_d_x = 0.15;
+    K_d_y = 0.15;
+    K_d_z = 0.15;
   }
 
   
