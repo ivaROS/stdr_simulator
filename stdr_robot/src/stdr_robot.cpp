@@ -510,22 +510,22 @@ namespace stdr_robot
 
 
     // //!< Sensors tf
-    // for (int i = 0; i < _sensors.size(); i++) {
-    //   geometry_msgs::Pose2D sensorPose = _sensors[i]->getSensorPose();
+    for (int i = 0; i < _sensors.size(); i++) {
+      geometry_msgs::Pose2D sensorPose = _sensors[i]->getSensorPose();
 
-    //   tf::Vector3 trans(sensorPose.x, sensorPose.y, 0);
-    //   tf::Quaternion rot;
-    //   rot.setRPY(0, 0, sensorPose.theta);
+      tf::Vector3 trans(sensorPose.x, sensorPose.y, 0);
+      tf::Quaternion rot;
+      rot.setRPY(0, 0, sensorPose.theta);
 
-    //   tf::Transform robotToSensor(rot, trans);
+      tf::Transform robotToSensor(rot, trans);
 
-    //   _tfBroadcaster.sendTransform(
-    //     tf::StampedTransform(
-    //       robotToSensor,
-    //       ros::Time::now(),
-    //       getName(),
-    //       _sensors[i]->getFrameId()));
-    // }
+      _tfBroadcaster.sendTransform(
+        tf::StampedTransform(
+          robotToSensor,
+          ros::Time::now(),
+          getName(),
+          _sensors[i]->getFrameId()));
+    }
 
     ROS_DEBUG_STREAM("Timing for publishing tf and odom: " << (ros::WallTime::now() - start_time).toSec() * 1000 << " ms");
   }
