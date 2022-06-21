@@ -113,8 +113,8 @@ namespace stdr_robot {
       double a_theta = K_p_z * error_theta + K_d_z * d_error_theta_dt;
       //std::cout << "raw robot acceleration: " << a_x << ", " << a_y << ", " << a_theta << std::endl;
 
-      double linear_acc_lim = 3.0;
-      double angular_acc_lim = 3.0;
+      double linear_acc_lim = 1.5;
+      double angular_acc_lim = 1.5;
 
       _currentAcc.linear.x = (a_x > 0.0) ? std::min(a_x, linear_acc_lim) : std::max(a_x, -linear_acc_lim);
       _currentAcc.linear.y = (a_y > 0.0) ? std::min(a_y, linear_acc_lim) : std::max(a_y, -linear_acc_lim);
