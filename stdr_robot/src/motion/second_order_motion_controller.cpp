@@ -52,6 +52,8 @@ namespace stdr_robot {
     const stdr_msgs::KinematicMsg params)
       : MotionController(pose, tf, name, n, params)
   {
+    ROS_INFO_STREAM(_namespace << ", 2nd order controller with frequency: " << _freq);
+
     _calcTimer = n.createTimer(
       _freq, 
       &SecondOrderMotionController::calculateMotion, 

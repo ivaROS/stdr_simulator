@@ -42,7 +42,7 @@ namespace stdr_robot
   **/
   void Robot::onInit()
   {
-    float frequency = 120;
+    float frequency = 60;
     float freq_time = 1. / frequency;
 
     ros::NodeHandle n = getMTNodeHandle();
@@ -153,7 +153,6 @@ namespace stdr_robot
           result->description.bumperSensors[bumperIter], getName(), n ) ) );
     }
     
-    /*
     if( result->description.footprint.points.size() == 0 ) {
       float radius = result->description.footprint.radius;
       for(unsigned int i = 0 ; i < 360 ; i++)
@@ -170,7 +169,6 @@ namespace stdr_robot
         _footprint.push_back( std::pair<float,float>(p.x, p.y));
       }
     }
-    */
     
     std::string motion_model = result->description.kinematicModel.type;
     stdr_msgs::KinematicMsg p = result->description.kinematicModel;

@@ -53,6 +53,7 @@ namespace stdr_robot {
     const stdr_msgs::KinematicMsg params)
       : MotionController(pose, tf, name, n, params)
   {
+    ROS_INFO_STREAM(_namespace << ", omni controller with frequency: " << _freq);
     _calcTimer = n.createTimer(
       _freq, 
       &OmniMotionController::calculateMotion, 
@@ -90,6 +91,8 @@ namespace stdr_robot {
 
       _pose.theta += _currentVel.angular.z * dt.toSec();
     }
+
+    // ROS_INFO_STREAM(_namespace << " x: " << _pose.x << ", y: " << _pose.y << ", theta: " << _pose.theta);
   }
   
   /**

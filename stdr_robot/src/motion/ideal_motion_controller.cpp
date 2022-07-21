@@ -39,6 +39,7 @@ namespace stdr_robot {
     const stdr_msgs::KinematicMsg params)
       : MotionController(pose, tf, name, n, params)
   {
+    ROS_INFO_STREAM("robot" << _namespace << ", ideal controller with frequency: " << _freq);
     _calcTimer = n.createTimer(
       _freq, 
       &IdealMotionController::calculateMotion, 
