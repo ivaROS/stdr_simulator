@@ -75,9 +75,10 @@ namespace stdr_robot {
     // Simple omni model
     // TODO: Add kinematic model uncertainties
 
+
     _currentVel = _currentTwist;
-    if (_currentVel.angular.z != 0 || _currentVel.linear.x != 0 ||
-     _currentVel.linear.y != 0) 
+    ROS_INFO_STREAM("_currentVel linear: " <<  _currentVel.linear.x << ", " <<  _currentVel.linear.y << ", angular: " << _currentVel.angular.z);
+    if (_currentVel.angular.z != 0 || _currentVel.linear.x != 0 || _currentVel.linear.y != 0) 
     {
       // Dx and Dy takes under consideration both linear rotations, 
       // independently of each other
@@ -90,6 +91,8 @@ namespace stdr_robot {
         _currentVel.linear.x * dt.toSec() * sinf(_pose.theta);
 
       _pose.theta += _currentVel.angular.z * dt.toSec();
+
+      ROS_INFO_STREAM("updating " << _namespace << " pose to x: " << _pose.x << ", y: " << _pose.y << ", theta: " << _pose.theta);
     }
 
     // ROS_INFO_STREAM(_namespace << " x: " << _pose.x << ", y: " << _pose.y << ", theta: " << _pose.theta);
