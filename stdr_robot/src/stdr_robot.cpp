@@ -454,12 +454,13 @@ namespace stdr_robot
 
     tf::Transform mapToRobot(rotation, translation);
 
+    ros::Time cur_time = ros::Time::now();
     _tfBroadcaster.sendTransform(tf::StampedTransform(
-      mapToRobot, ros::Time::now(), "map_static", getName()));
+      mapToRobot, cur_time, "map_static", getName()));
 
     //!< Odometry
     nav_msgs::Odometry odom;
-    odom.header.stamp = ros::Time::now();
+    odom.header.stamp = cur_time;
     odom.header.frame_id = "map_static";
     odom.child_frame_id = getName();
     odom.pose.pose.position.x = _previousPose.x;
@@ -483,7 +484,7 @@ namespace stdr_robot
       _tfBroadcaster.sendTransform(
         tf::StampedTransform(
           robotToSensor,
-          ros::Time::now(),
+          cur_time,
           getName(),
           _sensors[i]->getFrameId()));
     }
