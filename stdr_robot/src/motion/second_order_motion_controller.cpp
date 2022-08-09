@@ -66,13 +66,13 @@ namespace stdr_robot {
     prev_error_y = 0.0;
     prev_error_theta = 0.0;
 
-    K_p_x = 3.0;
-    K_p_y = 3.0;
-    K_p_z = 3.0;
+    K_p_x = 20.0;
+    K_p_y = 20.0;
+    K_p_z = 20.0;
 
-    K_d_x = 0.15;
-    K_d_y = 0.15;
-    K_d_z = 0.15;
+    K_d_x = 0.1;
+    K_d_y = 0.1;
+    K_d_z = 0.1;
   }
 
   
@@ -99,43 +99,47 @@ namespace stdr_robot {
       // Dx and Dy takes under consideration both linear rotations, 
       // independently of each other
       // Kp: 1, Kd: .05 (div by 20)
-      ROS_INFO_STREAM("current twist command: " << _currentTwist.linear.x << ", " << _currentTwist.linear.y << ", " << _currentTwist.angular.z);
-      ROS_INFO_STREAM("current robot velocity: " << _currentVel.linear.x << ", " << _currentVel.linear.y << ", " << _currentVel.angular.z);
+      // ROS_INFO_STREAM("current twist command: " << _currentTwist.linear.x << ", " << _currentTwist.linear.y << ", " << _currentTwist.angular.z);
+      // ROS_INFO_STREAM("current robot velocity: " << _currentVel.linear.x << ", " << _currentVel.linear.y << ", " << _currentVel.angular.z);
       
       double error_x = _currentTwist.linear.x - _currentVel.linear.x;
       double error_y = _currentTwist.linear.y - _currentVel.linear.y;
       double error_theta = _currentTwist.angular.z - _currentVel.angular.z;
 
-      // double d_error_x_dt = (error_x - prev_error_x) / dt.toSec();
-      // double d_error_y_dt = (error_y - prev_error_y) / dt.toSec();
-      // double d_error_theta_dt = (error_theta - prev_error_theta) / dt.toSec();
+      double d_error_x_dt = (error_x - prev_error_x) / dt.toSec();
+      double d_error_y_dt = (error_y - prev_error_y) / dt.toSec();
+      double d_error_theta_dt = (error_theta - prev_error_theta) / dt.toSec();
 
-      double a_x = K_p_x*error_x; // + K_d_x * d_error_x_dt;
-      double a_y = K_p_y*error_y; //  + K_d_y * d_error_y_dt;
-      double a_theta = K_p_z*error_theta; // + K_d_z * d_error_theta_dt;
-      ROS_INFO_STREAM("raw robot acceleration: " << a_x << ", " << a_y << ", " << a_theta);
+      // ROS_INFO_STREAM("error_x: " << error_x << ", error_y: " << error_y << ", error_theta: " << error_theta);
+      // ROS_INFO_STREAM("d_error_x_dt: " << d_error_x_dt << ", d_error_y_dt: " << d_error_y_dt << ", d_error_theta_dt: " << d_error_theta_dt);
+      double a_x = K_p_x*error_x + K_d_x * d_error_x_dt;
+      double a_y = K_p_y*error_y  + K_d_y * d_error_y_dt;
+      double a_theta = K_p_z*error_theta + K_d_z * d_error_theta_dt;
+      // ROS_INFO_STREAM("raw robot acceleration: " << a_x << ", " << a_y << ", " << a_theta);
 
-      double linear_acc_lim = 1.5;
-      double angular_acc_lim = 1.5;
+      double linear_acc_lim = 2.5;
+      double angular_acc_lim = 2.5;
 
-      _currentAcc.linear.x = (a_x > 0.0) ? std::min(a_x, linear_acc_lim) : std::max(a_x, -linear_acc_lim);
-      _currentAcc.linear.y = (a_y > 0.0) ? std::min(a_y, linear_acc_lim) : std::max(a_y, -linear_acc_lim);
-      _currentAcc.angular.z = (a_theta > 0.0) ? std::min(a_theta, angular_acc_lim) : std::max(a_theta, -angular_acc_lim);      
-      ROS_INFO_STREAM("clipped robot acceleration: " << _currentAcc.linear.x << ", " << _currentAcc.linear.y << ", " << _currentAcc.angular.z);
+      _currentAcc.linear.x = std::max(-linear_acc_lim, std::min(linear_acc_lim, a_x));
+      _currentAcc.linear.y = std::max(-linear_acc_lim, std::min(linear_acc_lim, a_y));
+      _currentAcc.angular.z = std::max(-angular_acc_lim, std::min(angular_acc_lim, a_theta));      
+      // ROS_INFO_STREAM("clipped robot acceleration: " << _currentAcc.linear.x << ", " << _currentAcc.linear.y << ", " << _currentAcc.angular.z);
 
       _pose.x += 
-        _currentVel.linear.x * dt.toSec() * cosf(_pose.theta) + 
-        _currentVel.linear.y * dt.toSec() * cosf(_pose.theta + M_PI/2.0); 
+        (_currentVel.linear.x * dt.toSec() * cosf(_pose.theta) - 
+         _currentVel.linear.y * dt.toSec() * sinf(_pose.theta) ); 
+
+      // ^^^ was previously cosf(_pose.theta + M_PI/2.0)
 
       _pose.y += 
-        _currentVel.linear.y * dt.toSec() * sinf(_pose.theta + M_PI/2.0) +
-        _currentVel.linear.x * dt.toSec() * sinf(_pose.theta);
+        (_currentVel.linear.y * dt.toSec() * cosf(_pose.theta) +
+        _currentVel.linear.x * dt.toSec() * sinf(_pose.theta) );
 
       _pose.theta += _currentVel.angular.z * dt.toSec();
 
-      _currentVel.linear.x += _currentAcc.linear.x * dt.toSec();
-      _currentVel.linear.y += _currentAcc.linear.y * dt.toSec();
-      _currentVel.angular.z += _currentAcc.angular.z * dt.toSec();
+      _currentVel.linear.x += (_currentAcc.linear.x * dt.toSec() );
+      _currentVel.linear.y += (_currentAcc.linear.y * dt.toSec() );
+      _currentVel.angular.z += (_currentAcc.angular.z * dt.toSec() );
       // vel_publisher.publish(_currentVel);
       // pretty sure pose is in world coords, vel/acc are in robot coords
 

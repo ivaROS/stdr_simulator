@@ -77,11 +77,12 @@ namespace stdr_robot {
 
 
     _currentVel = _currentTwist;
-    ROS_INFO_STREAM("_currentVel linear: " <<  _currentVel.linear.x << ", " <<  _currentVel.linear.y << ", angular: " << _currentVel.angular.z);
+    // ROS_INFO_STREAM("_currentVel linear: " <<  _currentVel.linear.x << ", " <<  _currentVel.linear.y << ", angular: " << _currentVel.angular.z);
     if (_currentVel.angular.z != 0 || _currentVel.linear.x != 0 || _currentVel.linear.y != 0) 
     {
       // Dx and Dy takes under consideration both linear rotations, 
       // independently of each other
+      // ROS_INFO_STREAM("updating " << _namespace << " pose from x: " << _pose.x << ", y: " << _pose.y << ", theta: " << _pose.theta);
       _pose.x += 
         _currentVel.linear.x * dt.toSec() * cosf(_pose.theta) + 
         _currentVel.linear.y * dt.toSec() * cosf(_pose.theta + M_PI/2.0); 
@@ -92,7 +93,7 @@ namespace stdr_robot {
 
       _pose.theta += _currentVel.angular.z * dt.toSec();
 
-      ROS_INFO_STREAM("updating " << _namespace << " pose to x: " << _pose.x << ", y: " << _pose.y << ", theta: " << _pose.theta);
+      // ROS_INFO_STREAM("                      to x: " << _pose.x << ", y: " << _pose.y << ", theta: " << _pose.theta);
     }
 
     // ROS_INFO_STREAM(_namespace << " x: " << _pose.x << ", y: " << _pose.y << ", theta: " << _pose.theta);
