@@ -41,7 +41,6 @@ namespace stdr_robot {
   stdr_msgs::RobotIndexedMsg HandleRobot::spawnNewRobot(
     const stdr_msgs::RobotMsg msg) 
   {
-    // ROS_INFO("in spawnNewRobot, kinematic model: %s", msg.kinematicModel.type.c_str());
     stdr_msgs::SpawnRobotGoal goal;
     goal.description = msg;
       

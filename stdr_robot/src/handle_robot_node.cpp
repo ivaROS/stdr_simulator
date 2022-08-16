@@ -34,7 +34,7 @@
 **/
 int main(int argc, char** argv) {
   
-  ros::init(argc, argv, "robot_spawner", ros::init_options::AnonymousName);
+  ros::init(argc, argv, "robot_spawner"); // , ros::init_options::AnonymousName
   
   stdr_robot::HandleRobot handler;
   
