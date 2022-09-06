@@ -122,12 +122,13 @@ namespace stdr_robot {
         _currentVel.angular.x = 0;
         _currentVel.angular.y = 0;
         _currentVel.angular.z = 0;  
-        _currentAcc.linear.x = 0;
-        _currentAcc.linear.y = 0;
-        _currentAcc.linear.z = 0;
-        _currentAcc.angular.x = 0;
-        _currentAcc.angular.y = 0;
-        _currentAcc.angular.z = 0;     
+        
+        _currentAcc.twist.linear.x = 0;
+        _currentAcc.twist.linear.y = 0;
+        _currentAcc.twist.linear.z = 0;
+        _currentAcc.twist.angular.x = 0;
+        _currentAcc.twist.angular.y = 0;
+        _currentAcc.twist.angular.z = 0;     
       }
       
       /**
@@ -170,7 +171,7 @@ namespace stdr_robot {
       @brief Get the current acceleration of the motion controller
       @return geometry_msgs::Twist
       */
-      inline geometry_msgs::Twist getAcceleration() {
+      inline geometry_msgs::TwistStamped getAcceleration() {
         return _currentAcc;
       }
 
@@ -249,7 +250,7 @@ namespace stdr_robot {
       //!< Current robot velocity
       geometry_msgs::Twist _currentVel;
       //!< Current robot acceleration
-      geometry_msgs::Twist _currentAcc;
+      geometry_msgs::TwistStamped _currentAcc;
       //!< The kinematic model parameters
       stdr_msgs::KinematicMsg _motion_parameters;
   };

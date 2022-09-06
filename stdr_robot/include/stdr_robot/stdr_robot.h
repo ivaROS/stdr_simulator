@@ -187,6 +187,8 @@ namespace stdr_robot {
 
     //!< Robot's previous movement direction in Y Axis
     bool _previousMovementYAxis;
+
+    ros::WallTime prev_publish_transforms_time;
   };  
   
 } // namespace stdr_robot

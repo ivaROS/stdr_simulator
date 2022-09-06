@@ -42,14 +42,14 @@ namespace stdr_robot
   **/
   void Robot::onInit()
   {
-    float frequency = 60;
-    float freq_time = 1. / frequency;
+    float frequency = 60.0;
+    float freq_time = 1.0 / frequency;
 
     ros::NodeHandle n = getMTNodeHandle();
 
     _odomPublisher = n.advertise<nav_msgs::Odometry>(getName() + "/odom", frequency);
 
-    _accPublisher = n.advertise<geometry_msgs::Twist>(getName() + "/acc", frequency);
+    _accPublisher = n.advertise<geometry_msgs::TwistStamped>(getName() + "/acc", frequency);
 
     _mapSubscriber = n.subscribe("map", 1, &Robot::mapCallback, this);
 
@@ -75,6 +75,8 @@ namespace stdr_robot
       ros::Duration(freq_time), &Robot::publishTransforms, this, false, false);
     // _tfTimer = n.createWallTimer(
       // ros::WallDuration(freq_time), &Robot::publishTransforms, this, false, false);
+
+    prev_publish_transforms_time = ros::WallTime::now();
   }
 
   /**
@@ -463,7 +465,10 @@ namespace stdr_robot
   // void Robot::publishTransforms(const ros::WallTimerEvent&)
   {
     ros::WallTime start_time = ros::WallTime::now();
-    
+
+    // ROS_INFO_STREAM("time since last publishTransforms: " << (start_time - prev_publish_transforms_time).toSec());
+    prev_publish_transforms_time = start_time;
+
     if(_map.info.resolution == 0)
       return;
 
@@ -499,12 +504,13 @@ namespace stdr_robot
     odom.pose.pose.orientation = tf::createQuaternionMsgFromYaw(
         _previousPose.theta);
     odom.twist.twist = _motionControllerPtr->getVelocity(); // still in rbt frame
-
     _odomPublisher.publish(odom);
 
     // Acceleration
-    geometry_msgs::Twist rbt_acc;
+    geometry_msgs::TwistStamped rbt_acc;
     rbt_acc = _motionControllerPtr->getAcceleration();
+    rbt_acc.header.stamp = timeNow;
+    rbt_acc.header.frame_id = getName();
 
     _accPublisher.publish(rbt_acc);
 
@@ -527,7 +533,7 @@ namespace stdr_robot
           _sensors[i]->getFrameId()));
     }
 
-    ROS_DEBUG_STREAM("Timing for publishing tf and odom: " << (ros::WallTime::now() - start_time).toSec() * 1000 << " ms");
+    // ROS_INFO_STREAM("Timing for publishing tf and odom: " << (ros::WallTime::now() - start_time).toSec() * 1000 << " ms");
   }
 
   /**

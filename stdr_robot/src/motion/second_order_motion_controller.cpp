@@ -58,9 +58,6 @@ namespace stdr_robot {
       _freq, 
       &SecondOrderMotionController::calculateMotion, 
       this);
-    // _currentVel = geometry_msgs::Twist();
-    // acc_publisher = n.advertise<geometry_msgs::Twist>(name + "/acc", 1000);
-    //vel_publisher = n.advertise<geometry_msgs::Twist>(name + "/current_vel", 1000);
 
     prev_error_x = 0.0;
     prev_error_y = 0.0;
@@ -120,9 +117,9 @@ namespace stdr_robot {
       double linear_acc_lim = 2.5;
       double angular_acc_lim = 2.5;
 
-      _currentAcc.linear.x = std::max(-linear_acc_lim, std::min(linear_acc_lim, a_x));
-      _currentAcc.linear.y = std::max(-linear_acc_lim, std::min(linear_acc_lim, a_y));
-      _currentAcc.angular.z = std::max(-angular_acc_lim, std::min(angular_acc_lim, a_theta));      
+      _currentAcc.twist.linear.x = std::max(-linear_acc_lim, std::min(linear_acc_lim, a_x));
+      _currentAcc.twist.linear.y = std::max(-linear_acc_lim, std::min(linear_acc_lim, a_y));
+      _currentAcc.twist.angular.z = std::max(-angular_acc_lim, std::min(angular_acc_lim, a_theta));      
       // ROS_INFO_STREAM("clipped robot acceleration: " << _currentAcc.linear.x << ", " << _currentAcc.linear.y << ", " << _currentAcc.angular.z);
 
       _pose.x += 
@@ -137,9 +134,9 @@ namespace stdr_robot {
 
       _pose.theta += _currentVel.angular.z * dt.toSec();
 
-      _currentVel.linear.x += (_currentAcc.linear.x * dt.toSec() );
-      _currentVel.linear.y += (_currentAcc.linear.y * dt.toSec() );
-      _currentVel.angular.z += (_currentAcc.angular.z * dt.toSec() );
+      _currentVel.linear.x += (_currentAcc.twist.linear.x * dt.toSec() );
+      _currentVel.linear.y += (_currentAcc.twist.linear.y * dt.toSec() );
+      _currentVel.angular.z += (_currentAcc.twist.angular.z * dt.toSec() );
       // vel_publisher.publish(_currentVel);
       // pretty sure pose is in world coords, vel/acc are in robot coords
 
