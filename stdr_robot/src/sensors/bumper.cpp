@@ -68,7 +68,7 @@ namespace stdr_robot {
   void Bumper::updateSensorCallback()
   {
     float angle;
-    int distance;
+    float distance;
     int xMap, yMap;
     sensor_msgs::Range rangeMsg;
 
@@ -83,10 +83,70 @@ namespace stdr_robot {
     float angleMax = _description.contactAngle / 2.0 ;
     rangeMsg.min_range = rangeMsg.max_range;
     rangeMsg.range = std::numeric_limits<float>::infinity(); // not in contact
-    // check if the bumper arc hits the occupied grid (from the map)
+    float min_x, min_y;
+    if(_description.points.size() != 0)
+    {
+      min_x = fabs(_description.points[0].x);
+      min_y = fabs(_description.points[0].y);
+      for(int i = 0; i < _description.points.size(); i++)
+      {
+        if(_description.points[i].x <= min_x)
+          min_x = fabs(_description.points[i].x);
+        if(_description.points[i].y <= min_y)
+          min_y = fabs(_description.points[i].y);
+      }
+    }
+    // check if the bumper arc hits the occupied grid
     for ( float bumperIter = angleMin; bumperIter < angleMax; bumperIter += angleStep )
     {
-      distance =  _description.radius / _map.info.resolution;
+      if(_description.points.size() == 0)
+      {
+        distance =  _description.radius / _map.info.resolution;
+      }
+      else
+      {
+        float angle_1 = atan2(min_y, min_x);
+        float angle_2 = M_PI / 2.0 - angle_1;
+        if(bumperIter <= (-M_PI + angle_1))
+        {
+          distance = min_x / _map.info.resolution / cos(M_PI + bumperIter);
+        }
+        else if(bumperIter > (-M_PI + angle_1) && bumperIter <= (-M_PI / 2.0))
+        {
+          distance = min_y / _map.info.resolution / cos(-M_PI / 2.0 - bumperIter);
+        }
+        else if(bumperIter > (-M_PI / 2.0) && bumperIter <= (-angle_1))
+        {
+          distance = min_y / _map.info.resolution / cos(bumperIter + M_PI / 2.0);
+        }
+        else if(bumperIter > (-angle_1) && bumperIter <= 0)
+        {
+          distance = min_x / _map.info.resolution / cos(-bumperIter);
+        }
+        else if(bumperIter > 0 && bumperIter <= angle_1)
+        {
+          distance = min_x / _map.info.resolution / cos(bumperIter);
+        }
+        else if(bumperIter > angle_1 && bumperIter <= (M_PI / 2.0))
+        {
+          distance = min_y / _map.info.resolution / cos(M_PI / 2.0 - bumperIter);
+        }
+        else if(bumperIter > (M_PI / 2.0) && bumperIter <= (M_PI - angle_1))
+        {
+          distance = min_y / _map.info.resolution / cos(bumperIter - M_PI / 2.0);
+        }
+        else if(bumperIter > (M_PI - angle_1) && bumperIter <= M_PI)
+        {
+          distance = min_x / _map.info.resolution / cos(M_PI - bumperIter);
+        }
+        else
+        {
+          std::cout << "Invalid bumper angle." << std::endl;
+        }
+      }
+
+      // std::cout << _map.info.resolution << " " << min_x / _map.info.resolution << " " << min_x << " " << min_y << " " << distance << std::endl;
+
       xMap = _sensorTransform.getOrigin().x() / _map.info.resolution +
           cos( bumperIter + tf::getYaw(_sensorTransform.getRotation())) * distance;
       yMap = _sensorTransform.getOrigin().y() / _map.info.resolution +

@@ -25,6 +25,7 @@
 #include <stdr_robot/sensors/sensor_base.h>
 #include <stdr_msgs/BumperSensorMsg.h>
 #include <sensor_msgs/Range.h>
+#include <math.h>
 
 /**
 @namespace stdr_robot

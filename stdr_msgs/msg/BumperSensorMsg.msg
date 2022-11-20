@@ -1,5 +1,6 @@
 # Bumper sensor description
-float32 radius
+geometry_msgs/Point[] points
+float32 radius # for circular footprints
 float32 contactAngle
 float32 frequency
 string frame_id
