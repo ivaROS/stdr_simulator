@@ -67,7 +67,7 @@ add_dependencies(stdr_laser ${stdr_msgs_EXPORTED_TARGETS}) # wait for stdr_msgs 
 target_link_libraries(stdr_laser ${catkin_LIBRARIES} stdr_sensor_base)
 
 add_library(stdr_bumper src/sensors/bumper.cpp)
-add_dependencies(stdr_bumper stdr_msgs_gencpp) # wait for stdr_msgs to be build
+add_dependencies(stdr_bumper ${stdr_msgs_EXPORTED_TARGETS}) # wait for stdr_msgs to be build
 target_link_libraries(stdr_bumper ${catkin_LIBRARIES} stdr_sensor_base)
 
 ###################### Motion Controller ###############################

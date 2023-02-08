@@ -33,7 +33,7 @@ include_directories(
 
 catkin_package(
   DEPENDS
-    QT
+    #Qt5
   CATKIN_DEPENDS
     roscpp
     roslib
