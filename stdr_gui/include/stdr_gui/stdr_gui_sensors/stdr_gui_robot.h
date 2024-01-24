@@ -108,7 +108,6 @@ namespace stdr_gui
       
       //!< The robot visibility status
       char visualization_status_;
-      char robot_label_visualization_status_;
     //------------------------------------------------------------------------//
     public:
     
