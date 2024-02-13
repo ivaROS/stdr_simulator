@@ -52,7 +52,7 @@ namespace stdr_robot {
       **/
       virtual void velocityCallback(const geometry_msgs::Twist& msg)
       {
-        _currentTwist = msg;
+        _currentCommandVel = msg;
         sampleVelocities();
       }
 
@@ -74,33 +74,33 @@ namespace stdr_robot {
       **/
       virtual void sampleVelocities(void)
       {
-        float ux = _currentTwist.linear.x;
-        float uy = _currentTwist.linear.y;
-        float w = _currentTwist.angular.z;
+        float ux = _currentCommandVel.linear.x;
+        float uy = _currentCommandVel.linear.y;
+        float w = _currentCommandVel.angular.z;
 
         float sample_ux = 
           _motion_parameters.a_ux_ux * ux * ux +
           _motion_parameters.a_ux_uy * uy * uy +
           _motion_parameters.a_ux_w  * w  * w;
-        _currentTwist.linear.x += sampleNormal(sqrt(sample_ux));
+        _currentCommandVel.linear.x += sampleNormal(sqrt(sample_ux));
 
         float sample_uy = 
           _motion_parameters.a_uy_ux * ux * ux +
           _motion_parameters.a_uy_uy * uy * uy +
           _motion_parameters.a_uy_w  * w  * w;
-        _currentTwist.linear.y += sampleNormal(sqrt(sample_uy));
+        _currentCommandVel.linear.y += sampleNormal(sqrt(sample_uy));
  
         float sample_w = 
           _motion_parameters.a_w_ux * ux * ux +
           _motion_parameters.a_w_uy * uy * uy +
           _motion_parameters.a_w_w  * w  * w;
-        _currentTwist.angular.z += sampleNormal(sqrt(sample_w));
+        _currentCommandVel.angular.z += sampleNormal(sqrt(sample_w));
 
         float sample_g = 
           _motion_parameters.a_g_ux * ux * ux +
           _motion_parameters.a_g_uy * uy * uy +
           _motion_parameters.a_g_w  * w  * w;
-        _currentTwist.angular.z += sampleNormal(sqrt(sample_g));
+        _currentCommandVel.angular.z += sampleNormal(sqrt(sample_g));
       }
 
       
@@ -110,12 +110,12 @@ namespace stdr_robot {
       **/
       virtual void stop(void)
       {
-        _currentTwist.linear.x = 0;
-        _currentTwist.linear.y = 0;
-        _currentTwist.linear.z = 0;
-        _currentTwist.angular.x = 0;
-        _currentTwist.angular.y = 0;
-        _currentTwist.angular.z = 0;
+        _currentCommandVel.linear.x = 0;
+        _currentCommandVel.linear.y = 0;
+        _currentCommandVel.linear.z = 0;
+        _currentCommandVel.angular.x = 0;
+        _currentCommandVel.angular.y = 0;
+        _currentCommandVel.angular.z = 0;
         _currentVel.linear.x = 0;
         _currentVel.linear.y = 0;
         _currentVel.linear.z = 0;
@@ -246,7 +246,7 @@ namespace stdr_robot {
       //!< Robot pose message
       geometry_msgs::Pose2D _pose;
       //!< Current motion command
-      geometry_msgs::Twist _currentTwist;
+      geometry_msgs::Twist _currentCommandVel;
       //!< Current robot velocity
       geometry_msgs::Twist _currentVel;
       //!< Current robot acceleration

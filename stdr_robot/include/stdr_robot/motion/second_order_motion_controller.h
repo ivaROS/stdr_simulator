@@ -85,16 +85,35 @@ namespace stdr_robot
       **/
       ~SecondOrderMotionController(void);
 
-      double prev_error_x;
-      double prev_error_y;
-      double prev_error_theta;
+      double error_x_kmin1 = 0.0;
+      double error_y_kmin1 = 0.0;
+      double error_theta_kmin1= 0.0;
 
-      double K_p_x;
-      double K_p_y;
-      double K_p_z;
-      double K_d_x;
-      double K_d_y;
-      double K_d_z;
+      double d_error_x_dt_k = 0.0;
+      double d_error_x_dt_kmin1 = 0.0;
+      double d_error_x_dt_kmin2 = 0.0;
+
+      double d_error_y_dt_k = 0.0;
+      double d_error_y_dt_kmin1 = 0.0;
+      double d_error_y_dt_kmin2 = 0.0;
+
+      double d_error_theta_dt_k = 0.0;
+      double d_error_theta_dt_kmin1 = 0.0;
+      double d_error_theta_dt_kmin2 = 0.0;     
+
+      double int_error_x_kmin1 = 0.0;
+      double int_error_y_kmin1 = 0.0;
+      double int_error_theta_kmin1 = 0.0;
+
+      double K_p_x = 0.0;
+      double K_p_y = 0.0;
+      double K_p_z = 0.0;
+      double K_d_x = 0.0;
+      double K_d_y = 0.0;
+      double K_d_z = 0.0;
+      double K_i_x = 0.0;
+      double K_i_y = 0.0;
+      double K_i_z = 0.0;      
   };
 }
 

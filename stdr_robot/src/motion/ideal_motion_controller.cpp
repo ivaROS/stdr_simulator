@@ -53,11 +53,11 @@ namespace stdr_robot {
   **/
   void IdealMotionController::calculateMotion(const ros::TimerEvent& event) 
   {
-    //!< updates _posePtr based on _currentTwist and time passed (event.last_real)
+    //!< updates _posePtr based on _currentCommandVel and time passed (event.last_real)
     
     ros::Duration dt = ros::Time::now() - event.last_real;
     // std::cout << "ideal calculate motion" << std::endl;
-    _currentVel = _currentTwist;
+    _currentVel = _currentCommandVel;
     if (_currentVel.angular.z == 0) {
       
       _pose.x += _currentVel.linear.x * dt.toSec() * cosf(_pose.theta);

@@ -68,7 +68,7 @@ namespace stdr_robot {
   **/
   void OmniMotionController::calculateMotion(const ros::TimerEvent& event) 
   {
-    //!< updates _posePtr based on _currentTwist and time passed (event.last_real)
+    //!< updates _posePtr based on _currentCommandVel and time passed (event.last_real)
     
     ros::Duration dt = ros::Time::now() - event.last_real;
     // std::cout << "omni calculate motion" << std::endl;
@@ -76,7 +76,7 @@ namespace stdr_robot {
     // TODO: Add kinematic model uncertainties
 
 
-    _currentVel = _currentTwist;
+    _currentVel = _currentCommandVel;
     // ROS_INFO_STREAM("_currentVel linear: " <<  _currentVel.linear.x << ", " <<  _currentVel.linear.y << ", angular: " << _currentVel.angular.z);
     if (_currentVel.angular.z != 0 || _currentVel.linear.x != 0 || _currentVel.linear.y != 0) 
     {
