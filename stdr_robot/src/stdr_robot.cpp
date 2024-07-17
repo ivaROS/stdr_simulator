@@ -42,7 +42,7 @@ namespace stdr_robot
   **/
   void Robot::onInit()
   {
-    float frequency = 10;
+    float frequency = 30;
     float freq_time = 1. / frequency;
 
     ros::NodeHandle n = getMTNodeHandle();
