@@ -63,17 +63,17 @@ namespace stdr_robot {
     error_y_kmin1 = 0.0;
     error_theta_kmin1 = 0.0;
 
-    K_p_x = 15.0;
-    K_p_y = 15.0;
-    K_p_z = 15.0;
+    K_p_x = 5.0;
+    K_p_y = 5.0;
+    K_p_z = 5.0;
 
     K_d_x = 0.1;
     K_d_y = 0.1;
     K_d_z = 0.1;
 
-    K_i_x = 50.0;
-    K_i_y = 50.0;
-    K_i_z = 50.0;    
+    // K_i_x = 50.0;
+    // K_i_y = 50.0;
+    // K_i_z = 50.0;    
   }
 
   
@@ -120,15 +120,15 @@ namespace stdr_robot {
       double d_error_theta_dt = (d_error_theta_dt_k + d_error_theta_dt_kmin1 + d_error_theta_dt_kmin2) / 3;
 
       // Integral control
-      double int_error_x_k = int_error_x_kmin1 + 0.5 * (error_x + error_x_kmin1) * dt;
-      double int_error_y_k = int_error_y_kmin1 + 0.5 * (error_y + error_y_kmin1) * dt;
-      double int_error_theta_k = int_error_theta_kmin1 + 0.5 * (error_theta + error_theta_kmin1) * dt;
+      // double int_error_x_k = int_error_x_kmin1 + 0.5 * (error_x + error_x_kmin1) * dt;
+      // double int_error_y_k = int_error_y_kmin1 + 0.5 * (error_y + error_y_kmin1) * dt;
+      // double int_error_theta_k = int_error_theta_kmin1 + 0.5 * (error_theta + error_theta_kmin1) * dt;
 
       // ROS_INFO_STREAM("error_x: " << error_x << ", error_y: " << error_y << ", error_theta: " << error_theta);
       // ROS_INFO_STREAM("d_error_x_dt_k: " << d_error_x_dt_k << ", d_error_y_dt_k: " << d_error_y_dt_k << ", d_error_theta_dt_k: " << d_error_theta_dt_k);
-      double a_x = K_p_x*error_x + K_d_x * d_error_x_dt + K_i_x * int_error_x_k;
-      double a_y = K_p_y*error_y  + K_d_y * d_error_y_dt + K_i_y * int_error_y_k;
-      double a_theta = K_p_z*error_theta + K_d_z * d_error_theta_dt + K_i_z * int_error_theta_k;
+      double a_x = K_p_x*error_x + K_d_x * d_error_x_dt; //  + K_i_x * int_error_x_k;
+      double a_y = K_p_y*error_y  + K_d_y * d_error_y_dt; //  + K_i_y * int_error_y_k;
+      double a_theta = K_p_z*error_theta + K_d_z * d_error_theta_dt; //  + K_i_z * int_error_theta_k;
       // ROS_INFO_STREAM("raw robot acceleration: " << a_x << ", " << a_y << ", " << a_theta);
 
       double linear_acc_lim = 2.5;
@@ -170,9 +170,9 @@ namespace stdr_robot {
       error_y_kmin1 = error_y;
       error_theta_kmin1 = error_theta;
 
-      int_error_x_kmin1 = int_error_x_k;
-      int_error_y_kmin1 = int_error_y_k;
-      int_error_theta_kmin1 = int_error_theta_k;
+      // int_error_x_kmin1 = int_error_x_k;
+      // int_error_y_kmin1 = int_error_y_k;
+      // int_error_theta_kmin1 = int_error_theta_k;
     }
   }
   
