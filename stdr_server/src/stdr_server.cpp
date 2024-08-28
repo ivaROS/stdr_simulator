@@ -470,7 +470,7 @@ namespace stdr_server {
   {
     if (_mapServer) {
       ROS_WARN("Map already loaded!");
-      return false;
+      // return false;
     }
     _mapServer.reset(new MapServer(req.mapFile));
     //!< if we don't have map, no point to start servers
@@ -491,7 +491,7 @@ namespace stdr_server {
   {
     if (_mapServer) {
       ROS_WARN("Map already loaded!");
-      return false;
+      // return false;
     }
     _mapServer.reset(new MapServer(req.map));
 
